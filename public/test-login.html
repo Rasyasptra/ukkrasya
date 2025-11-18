@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        .info p {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .note {
+            margin-top: 20px;
+            padding: 10px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔐 Test Login - Admin</h2>
+        
+        <div class="info">
+            <h3>Kredensial Login yang Benar:</h3>
+            <p><strong>Username:</strong> admin</p>
+            <p><strong>Email:</strong> admin@sekolah.com</p>
+            <p><strong>Password:</strong> admin123</p>
+        </div>
+
+        <form action="/login" method="POST">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            
+            <div class="form-group">
+                <label for="username">Email atau Username:</label>
+                <input type="text" id="username" name="username" value="admin" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" value="admin123" required>
+            </div>
+
+            <button type="submit">Login Sekarang</button>
+        </form>
+
+        <div class="note">
+            <strong>💡 Tips:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Gunakan username: <code>admin</code> atau email: <code>admin@sekolah.com</code></li>
+                <li>Password: <code>admin123</code></li>
+                <li>Jika masih gagal, clear browser cache (Ctrl+Shift+Delete)</li>
+                <li>Atau coba buka di Incognito/Private mode</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
