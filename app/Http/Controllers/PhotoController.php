@@ -52,7 +52,12 @@ class PhotoController extends Controller
         // Get all available categories for filter dropdown with caching
         $categories = $this->cacheManager->getCategoryOptions();
         
-        return view('admin.photos.index', compact('photos', 'categories'));
+        // Get statistics (total, not filtered)
+        $totalPhotos = Photo::count();
+        $activeAdmins = Photo::distinct('uploaded_by')->count('uploaded_by');
+        $photosThisWeek = Photo::where('created_at', '>=', now()->subDays(7))->count();
+        
+        return view('admin.photos.index', compact('photos', 'categories', 'totalPhotos', 'activeAdmins', 'photosThisWeek'));
     }
 
     public function store(Request $request)

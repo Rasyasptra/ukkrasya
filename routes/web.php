@@ -10,6 +10,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SchoolSettingsController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -126,6 +127,10 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('admin.notifications.read');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('admin.notifications.read-all');
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+        
+        // School Settings Routes (Admin only)
+        Route::get('/school-settings', [SchoolSettingsController::class, 'edit'])->name('admin.school-settings.edit');
+        Route::put('/school-settings', [SchoolSettingsController::class, 'update'])->name('admin.school-settings.update');
     });
 });
 

@@ -57,6 +57,9 @@
         <a href="{{ route('admin.information.index') }}" class="btn btn-primary" style="text-decoration: none; justify-content: center;">
             Kelola Informasi
         </a>
+        <a href="{{ route('admin.school-settings.edit') }}" class="btn btn-primary" style="text-decoration: none; justify-content: center;">
+            <i class="fas fa-cog"></i> Pengaturan Sekolah
+        </a>
         <a href="{{ route('gallery.index') }}" class="btn btn-outline" target="_blank" style="text-decoration: none; justify-content: center;">
             Lihat Galeri
         </a>

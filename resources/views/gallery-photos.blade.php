@@ -200,7 +200,7 @@
         /* Gallery Grid */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 24px;
             margin-bottom: 60px;
         }
@@ -299,10 +299,26 @@
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             border-color: #ef4444;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            animation: heartPulse 2s ease-in-out infinite;
         }
 
         .like-btn.liked:hover {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+        }
+
+        .like-btn.liked i {
+            animation: heartBeat 0.6s ease;
+        }
+
+        @keyframes heartPulse {
+            0%, 100% {
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 16px rgba(239, 68, 68, 0.6);
+            }
         }
 
         .like-btn i {
@@ -709,6 +725,9 @@
         @if($photos->count() > 0)
             <div class="gallery-grid">
                 @foreach($photos as $photo)
+                    @php
+                        $isLiked = auth()->check() ? $photo->isLikedByUser() : false;
+                    @endphp
                     <div class="photo-card">
                         <div class="photo-image-wrapper" onclick="openModal('{{ $photo->photo_url }}', '{{ $photo->title }}')">
                             <img src="{{ $photo->photo_url }}" alt="{{ $photo->title }}" class="photo-image" onerror="this.src='{{ asset('images/no-image.png') }}';">
@@ -728,15 +747,28 @@
                                 </span>
                             </div>
                             <div class="photo-actions">
-                                <button type="button" class="like-btn {{ $photo->isLikedByIp($userIp) ? 'liked' : '' }}" 
-                                        data-photo-id="{{ $photo->id }}" 
-                                        onclick="toggleLike({{ $photo->id }}); event.stopPropagation();">
-                                    <i class="fas fa-heart"></i>
-                                    <span class="like-count">{{ $photo->likes->count() }}</span>
-                                </button>
-                                <a href="{{ route('gallery.photo.download', $photo->id) }}" class="download-btn" onclick="event.stopPropagation()">
-                                    <i class="fas fa-download"></i> Download
-                                </a>
+                                @auth
+                                    <button type="button" class="like-btn {{ $isLiked ? 'liked' : '' }}" 
+                                            data-photo-id="{{ $photo->id }}" 
+                                            data-liked="{{ $isLiked ? 'true' : 'false' }}"
+                                            onclick="toggleLike({{ $photo->id }}); event.stopPropagation();">
+                                        <i class="fas fa-heart"></i>
+                                        <span class="like-count">{{ $photo->likes->count() }}</span>
+                                    </button>
+                                    <a href="{{ route('gallery.photo.download', $photo->id) }}" class="download-btn" onclick="event.stopPropagation()">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                @else
+                                    <button type="button" class="like-btn" 
+                                            data-photo-id="{{ $photo->id }}" 
+                                            onclick="requireLogin('like'); event.stopPropagation();">
+                                        <i class="fas fa-heart"></i>
+                                        <span class="like-count">{{ $photo->likes->count() }}</span>
+                                    </button>
+                                    <a href="#" class="download-btn" onclick="requireLogin('download'); event.stopPropagation(); return false;">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                @endauth
                             </div>
 
                             <!-- Comments Section -->
@@ -748,28 +780,34 @@
                                 </button>
 
                                 <div class="comments-content" id="comments-{{ $photo->id }}" style="display: none;">
-                                    <!-- Comment Form -->
-                                    <form id="comment-form-{{ $photo->id }}" class="comment-form" onclick="event.stopPropagation()">
-                                        @csrf
-                                        @auth
+                                    @auth
+                                        <!-- Comment Form -->
+                                        <form id="comment-form-{{ $photo->id }}" class="comment-form" onclick="event.stopPropagation()">
+                                            @csrf
                                             <!-- For logged-in users, show their name (read-only) -->
                                             <div style="background: #374151; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                                                 <i class="fas fa-user-circle" style="color: #60a5fa;"></i>
                                                 <span style="color: #d1d5db; font-size: 0.9rem;">Komentar sebagai: <strong style="color: #60a5fa;">{{ Auth::user()->name }}</strong></span>
                                             </div>
-                                        @else
-                                            <!-- For guests, require name input -->
-                                            <input type="text" name="name" placeholder="Nama *" required class="comment-input" value="{{ old('name') }}">
-                                        @endauth
-                                        <input type="hidden" name="photo_id" value="{{ $photo->id }}">
-                                        <textarea name="comment" placeholder="Tulis komentar..." required class="comment-textarea" rows="2">{{ old('comment') }}</textarea>
-                                        <button type="submit" class="comment-submit-btn" id="submit-btn-{{ $photo->id }}">
-                                            <i class="fas fa-paper-plane"></i> <span id="submit-text-{{ $photo->id }}">Kirim</span>
-                                            <span id="spinner-{{ $photo->id }}" class="comment-spinner" style="display: none;">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                        </button>
-                                    </form>
+                                            <input type="hidden" name="photo_id" value="{{ $photo->id }}">
+                                            <textarea name="comment" placeholder="Tulis komentar..." required class="comment-textarea" rows="2">{{ old('comment') }}</textarea>
+                                            <button type="submit" class="comment-submit-btn" id="submit-btn-{{ $photo->id }}">
+                                                <i class="fas fa-paper-plane"></i> <span id="submit-text-{{ $photo->id }}">Kirim</span>
+                                                <span id="spinner-{{ $photo->id }}" class="comment-spinner" style="display: none;">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <!-- Login Required Message -->
+                                        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 16px; border-radius: 8px; margin-bottom: 12px; text-align: center;">
+                                            <i class="fas fa-lock" style="font-size: 24px; color: white; margin-bottom: 8px;"></i>
+                                            <p style="color: white; font-weight: 600; margin: 0 0 8px 0;">Anda harus login untuk mengomentari foto</p>
+                                            <a href="{{ route('user.login') }}" style="display: inline-block; background: white; color: #d97706; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                                                <i class="fas fa-sign-in-alt"></i> Login Sekarang
+                                            </a>
+                                        </div>
+                                    @endauth
 
                                     <!-- Comments List -->
                                     <div class="comments-list" id="comments-list-{{ $photo->id }}">
@@ -831,6 +869,12 @@
         // Handle comment form submission
         $(document).on('submit', '.comment-form', function(e) {
             e.preventDefault();
+            
+            // Check if user is logged in
+            if (!isLoggedIn) {
+                requireLogin('comment');
+                return;
+            }
             
             const form = $(this);
             const photoId = form.find('input[name="photo_id"]').val();
@@ -895,6 +939,13 @@
                     console.error('Response text:', xhr.responseText);
                     
                     let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                    
+                    // Handle 401 (Unauthorized) - Login required
+                    if (xhr.status === 401) {
+                        requireLogin('comment');
+                        return;
+                    }
+                    
                     if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                         // Handle validation errors
                         errorMessage = '';
@@ -952,8 +1003,35 @@
             }
         });
 
+        // Check if user is logged in
+        const isLoggedIn = @json(auth()->check());
+
+        // Function to show login required notification
+        function requireLogin(action) {
+            const actionText = {
+                'like': 'menyukai foto',
+                'comment': 'mengomentari foto',
+                'download': 'mengunduh foto'
+            }[action] || 'menggunakan fitur ini';
+            
+            showNotification(`Anda harus login terlebih dahulu untuk ${actionText}. Silakan login atau daftar untuk melanjutkan.`, 'error');
+            
+            // Optionally redirect to login page after 2 seconds
+            setTimeout(() => {
+                if (confirm('Apakah Anda ingin login sekarang?')) {
+                    window.location.href = '{{ route("user.login") }}';
+                }
+            }, 2000);
+        }
+
         // Toggle like function
         function toggleLike(photoId) {
+            // Check if user is logged in
+            if (!isLoggedIn) {
+                requireLogin('like');
+                return;
+            }
+            
             const likeBtn = document.querySelector(`[data-photo-id="${photoId}"]`);
             if (!likeBtn) {
                 console.error('Like button not found for photo:', photoId);
@@ -996,6 +1074,11 @@
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(err => {
+                        // If 401 (Unauthorized), show login required message
+                        if (response.status === 401) {
+                            requireLogin('like');
+                            throw new Error('Login required');
+                        }
                         throw new Error(err.message || 'Request failed');
                     });
                 }
@@ -1006,12 +1089,14 @@
                     // Update like count
                     likeCount.textContent = data.likes_count;
                     
-                    // Toggle liked class
+                    // Toggle liked class on button only
                     if (data.liked) {
                         likeBtn.classList.add('liked');
+                        likeBtn.setAttribute('data-liked', 'true');
                         likeBtn.innerHTML = '<i class="fas fa-heart"></i> <span class="like-count">' + data.likes_count + '</span>';
                     } else {
                         likeBtn.classList.remove('liked');
+                        likeBtn.setAttribute('data-liked', 'false');
                         likeBtn.innerHTML = '<i class="fas fa-heart"></i> <span class="like-count">' + data.likes_count + '</span>';
                     }
 
@@ -1070,16 +1155,28 @@
                 animation: slideIn 0.3s ease;
                 max-width: 400px;
             `;
+            
+            // Add login link for error notifications about login
+            let actionButton = '';
+            if (type === 'error' && message.includes('login')) {
+                actionButton = `
+                    <a href="{{ route('user.login') }}" style="margin-left: 8px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 6px; text-decoration: none; color: white; font-size: 12px; font-weight: 600; white-space: nowrap;">
+                        Login
+                    </a>
+                `;
+            }
+            
             notification.innerHTML = `
                 <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}" style="font-size: 20px;"></i>
-                <span style="font-weight: 500; font-size: 14px;">${message}</span>
+                <span style="font-weight: 500; font-size: 14px; flex: 1;">${message}</span>
+                ${actionButton}
             `;
             document.body.appendChild(notification);
 
             setTimeout(() => {
                 notification.style.animation = 'slideOut 0.3s ease';
                 setTimeout(() => notification.remove(), 300);
-            }, 4000);
+            }, 5000);
         }
 
         // Add CSS animations

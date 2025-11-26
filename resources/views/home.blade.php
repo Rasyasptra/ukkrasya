@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda - SMK Negeri 4 Bogor</title>
+    <title>Beranda - {{ $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor' }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -52,7 +52,7 @@
         }
 
         .logo img {
-            height: 0.75rem;
+            height: 2rem;
             width: auto;
             object-fit: contain;
         }
@@ -629,7 +629,7 @@
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            grid-template-columns: 2fr 1fr 1.5fr;
             gap: 48px;
             margin-bottom: 40px;
         }
@@ -810,8 +810,8 @@
     <nav>
         <div class="nav-container">
             <a href="{{ route('home') }}" class="logo">
-                <img src="{{ asset('logo.png') }}" alt="SMK Negeri 4 Bogor" onerror="this.style.display='none';">
-                SMK Negeri 4 Bogor
+                <img src="{{ asset($schoolSettings->logo_path ?? 'logo.png') }}" alt="{{ $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor' }}" onerror="this.style.display='none';">
+                {{ $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor' }}
             </a>
             <ul class="nav-links">
                 <li><a href="{{ route('home') }}">Beranda</a></li>
@@ -873,11 +873,10 @@
         <div class="hero-overlay"></div>
         
         <div class="hero-content">
-            <h1 class="hero-title">SMK Negeri 4 Bogor</h1>
+            <h1 class="hero-title">{{ $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor' }}</h1>
             <p class="hero-subtitle">Sekolah Menengah Kejuruan Terdepan</p>
             <p class="hero-description">
-                Membangun generasi yang kompeten, berkarakter, dan siap menghadapi tantangan masa depan 
-                melalui pendidikan berkualitas dan teknologi terkini.
+                {{ $schoolSettings->home_description ?? 'Membangun generasi yang kompeten, berkarakter, dan siap menghadapi tantangan masa depan melalui pendidikan berkualitas dan teknologi terkini.' }}
             </p>
         </div>
         
@@ -908,7 +907,7 @@
     <div class="profile-section">
         <div class="container">
             <h2 class="section-title">Profil Sekolah</h2>
-            <p class="section-subtitle">Mengenal lebih dekat SMK Negeri 4 Bogor</p>
+            <p class="section-subtitle">Mengenal lebih dekat {{ $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor' }}</p>
             
             <div class="profile-content">
                 <!-- Visi -->
@@ -918,7 +917,7 @@
                     </div>
                     <h3 class="profile-card-title">Visi</h3>
                     <div class="profile-card-content">
-                        <p>Menjadi sekolah yang <strong>tangguh dalam IMTAQ</strong>, cerdas, terampil, mandiri, berbasis <strong>Teknologi Informasi dan Komunikasi</strong>, dan <strong>berwawasan lingkungan</strong>.</p>
+                        <p>{{ $schoolSettings->vision ?? 'Menjadi sekolah yang tangguh dalam IMTAQ, cerdas, terampil, mandiri, berbasis Teknologi Informasi dan Komunikasi, dan berwawasan lingkungan.' }}</p>
                     </div>
                 </div>
 
@@ -929,11 +928,24 @@
                     </div>
                     <h3 class="profile-card-title">Misi</h3>
                     <div class="profile-card-content">
-                        <ul>
-                            <li>Menumbuhkan sikap agama dan spiritualitas</li>
-                            <li>Mengembangkan literasi sesuai kompetensi siswa</li>
-                            <li>Meningkatkan keterampilan kompetensi sesuai jurusan</li>
-                        </ul>
+                        @if($schoolSettings->mission)
+                            @php
+                                $missionPoints = explode("\n", $schoolSettings->mission);
+                            @endphp
+                            <ul>
+                                @foreach($missionPoints as $point)
+                                    @if(trim($point))
+                                        <li>{{ trim($point) }}</li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        @else
+                            <ul>
+                                <li>Menumbuhkan sikap agama dan spiritualitas</li>
+                                <li>Mengembangkan literasi sesuai kompetensi siswa</li>
+                                <li>Meningkatkan keterampilan kompetensi sesuai jurusan</li>
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -946,7 +958,7 @@
                     </div>
                     <div class="profile-info-text">
                         <div class="profile-info-label">Alamat</div>
-                        <div class="profile-info-value">Kp. Buntar, Muarasari, Bogor Selatan</div>
+                            <div class="profile-info-value">{{ $schoolSettings->school_address ?? 'Kp. Buntar, Muarasari, Bogor Selatan' }}</div>
                     </div>
                 </div>
                 <div class="profile-info-item">
@@ -955,7 +967,7 @@
                     </div>
                     <div class="profile-info-text">
                         <div class="profile-info-label">Telepon</div>
-                        <div class="profile-info-value">(0251) 7547381</div>
+                            <div class="profile-info-value">{{ $schoolSettings->school_phone ?? '(0251) 7547381' }}</div>
                     </div>
                 </div>
                 <div class="profile-info-item">
@@ -964,7 +976,7 @@
                     </div>
                     <div class="profile-info-text">
                         <div class="profile-info-label">Email</div>
-                        <div class="profile-info-value">smkn4@smkn4bogor.sch.id</div>
+                            <div class="profile-info-value">{{ $schoolSettings->school_email ?? 'smkn4@smkn4bogor.sch.id' }}</div>
                     </div>
                 </div>
                 <div class="profile-info-item">
@@ -1060,16 +1072,23 @@
     @endif
 
     <!-- Footer -->
+    @php
+        $schoolName = $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor';
+        $schoolAddress = $schoolSettings->school_address ?? 'Kp. Buntar, Kelurahan Muarasari, Bogor Selatan, Kota Bogor, Jawa Barat 16137';
+        $schoolPhone = $schoolSettings->school_phone ?? '(0251) 7547381';
+        $schoolEmail = $schoolSettings->school_email ?? 'smkn4@smkn4bogor.sch.id';
+        $phoneHref = preg_replace('/[^0-9+]/', '', $schoolPhone);
+    @endphp
     <footer class="footer">
         <div class="footer-content">
             <!-- About Section -->
             <div class="footer-section">
                 <div class="footer-logo">
                     <i class="fas fa-graduation-cap"></i>
-                    SMK Negeri 4 Bogor
+                    {{ $schoolSettings->school_name ?? 'SMK Negeri 4 Bogor' }}
                 </div>
                 <p class="footer-about">
-                    Sekolah Menengah Kejuruan yang berkomitmen membangun generasi yang kompeten, berkarakter, dan siap menghadapi tantangan masa depan melalui pendidikan berkualitas.
+                    {{ $schoolSettings->home_description ?? 'Membangun generasi yang kompeten, berkarakter, dan siap menghadapi tantangan masa depan melalui pendidikan berkualitas dan teknologi terkini.' }}
                 </p>
                 <div class="social-links">
                     <a href="https://www.instagram.com/smkn4kotabogor?igsh=Z2t1NWo3Z29mdTU=" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
@@ -1084,22 +1103,6 @@
                     <a href="https://smkn4bogor.sch.id" target="_blank" rel="noopener noreferrer" class="social-link" title="Website">
                         <i class="fas fa-globe"></i>
                     </a>
-                </div>
-            </div>
-
-            <!-- Visi Misi Section -->
-            <div class="footer-section">
-                <h3><i class="fas fa-bullseye"></i> Visi & Misi</h3>
-                <div>
-                    <p style="font-weight: 600; color: #60a5fa; margin-bottom: 8px;">Visi:</p>
-                    <p style="font-size: 0.9rem; margin-bottom: 16px;">Menjadi sekolah yang tangguh dalam IMTAQ, cerdas, terampil, mandiri, berbasis TIK, dan berwawasan lingkungan.</p>
-                    
-                    <p style="font-weight: 600; color: #60a5fa; margin-bottom: 8px;">Misi:</p>
-                    <ul>
-                        <li>Menumbuhkan sikap agama dan spiritualitas</li>
-                        <li>Mengembangkan literasi sesuai kompetensi</li>
-                        <li>Meningkatkan keterampilan kompetensi</li>
-                    </ul>
                 </div>
             </div>
 
@@ -1123,9 +1126,7 @@
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="footer-contact-text">
-                        Kp. Buntar, Kelurahan Muarasari<br>
-                        Kecamatan Bogor Selatan<br>
-                        Kota Bogor, Jawa Barat 16137
+                        {!! nl2br(e($schoolAddress)) !!}
                     </div>
                 </div>
                 <div class="footer-contact-item">
@@ -1133,7 +1134,7 @@
                         <i class="fas fa-phone"></i>
                     </div>
                     <div class="footer-contact-text">
-                        <a href="tel:02517547381">(0251) 7547381</a>
+                        <a href="tel:{{ $phoneHref }}">{{ $schoolPhone }}</a>
                     </div>
                 </div>
                 <div class="footer-contact-item">
@@ -1141,7 +1142,7 @@
                         <i class="fas fa-envelope"></i>
                     </div>
                     <div class="footer-contact-text">
-                        <a href="mailto:smkn4@smkn4bogor.sch.id">smkn4@smkn4bogor.sch.id</a>
+                        <a href="mailto:{{ $schoolEmail }}">{{ $schoolEmail }}</a>
                     </div>
                 </div>
                 <div class="footer-contact-item">
@@ -1161,9 +1162,9 @@
                         allowfullscreen="" 
                         loading="lazy" 
                         referrerpolicy="no-referrer-when-downgrade"
-                        title="Lokasi SMK Negeri 4 Bogor">
+                        title="Lokasi {{ $schoolName }}">
                     </iframe>
-                    <a href="https://www.google.com/maps?q=-6.640600189306717,106.82492993439769" target="_blank" rel="noopener noreferrer" style="display: block; margin-top: 8px; color: #60a5fa; text-decoration: none; font-size: 0.85rem; text-align: center;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                        <a href="https://www.google.com/maps?q=-6.640600189306717,106.82492993439769" target="_blank" rel="noopener noreferrer" style="display: block; margin-top: 8px; color: #60a5fa; text-decoration: none; font-size: 0.85rem; text-align: center;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'" title="Lokasi {{ $schoolName }}">
                         <i class="fas fa-external-link-alt"></i> Buka di Google Maps
                     </a>
                 </div>
@@ -1171,7 +1172,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; {{ date('Y') }} SMK Negeri 4 Bogor. All rights reserved. | Akreditasi: A (Sangat Baik)</p>
+            <p>&copy; {{ date('Y') }} {{ $schoolName }}. All rights reserved. | Akreditasi: A (Sangat Baik)</p>
         </div>
     </footer>
 

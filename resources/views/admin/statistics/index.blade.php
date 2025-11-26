@@ -73,16 +73,6 @@
                 <p>Total Informasi</p>
             </div>
         </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-                <i class="fas fa-tags"></i>
-            </div>
-            <div class="stat-content">
-                <h3>{{ number_format($stats['total_categories']) }}</h3>
-                <p>Total Kategori</p>
-            </div>
-        </div>
     </div>
 
     <!-- Top Content -->

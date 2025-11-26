@@ -14,6 +14,14 @@ class LikeController extends Controller
     public function toggle(Request $request, $photoId)
     {
         try {
+            // Check if user is logged in
+            if (!auth()->check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda harus login terlebih dahulu untuk menyukai foto. Silakan login atau daftar untuk melanjutkan.'
+                ], 401);
+            }
+            
             $photo = Photo::findOrFail($photoId);
             $user = auth()->user();
             

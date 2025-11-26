@@ -448,10 +448,6 @@
             <div class="stat-label">Diterbitkan</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ $draftInfo }}</div>
-            <div class="stat-label">Draft</div>
-        </div>
-        <div class="stat-card">
             <div class="stat-number">{{ $recentInfo }}</div>
             <div class="stat-label">Minggu Ini</div>
         </div>

@@ -173,7 +173,7 @@
             <div class="sidebar-header">
                 <div class="brand">
                     <div class="brand-logo">
-                        <img src="{{ asset('logo.png') }}" alt="SMK Negeri 4 Bogor" style="height: 16px; width: auto; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 20px; font-weight: 600; color: #3b82f6;\'>SMK</div>';">
+                        <img src="{{ asset('logo.png') }}" alt="SMK Negeri 4 Bogor" style="height: 32px; width: auto; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 24px; font-weight: 600; color: #3b82f6;\'>SMK</div>';">
                     </div>
                     <h2>Admin Panel</h2>
                 </div>
@@ -202,6 +202,12 @@
                     <li>
                         <a href="{{ route('admin.statistics.index') }}" class="nav-link {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
                             <span>Laporan Statistik</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{{ route('admin.school-settings.edit') }}" class="nav-link {{ request()->routeIs('admin.school-settings.*') ? 'active' : '' }}">
+                            <span>Pengaturan Sekolah</span>
                         </a>
                     </li>
                     

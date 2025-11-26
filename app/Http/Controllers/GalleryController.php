@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Photo;
 use App\Models\Information;
+use App\Models\SchoolSettings;
 use App\Helpers\CategoryHelper;
 
 class GalleryController extends Controller
@@ -33,7 +34,10 @@ class GalleryController extends Controller
             ->take(3)
             ->get();
         
-        return view('home', compact('informations', 'photos', 'heroPhotos'));
+        // Get school settings (vision, mission, logo)
+        $schoolSettings = SchoolSettings::getSettings();
+        
+        return view('home', compact('informations', 'photos', 'heroPhotos', 'schoolSettings'));
     }
 
     public function index(Request $request)
@@ -50,7 +54,7 @@ class GalleryController extends Controller
 
     public function photos(Request $request)
     {
-        $query = Photo::with(['user', 'approvedComments', 'likes']);
+        $query = Photo::with(['user', 'approvedComments', 'likes', 'likes.user']);
         
         // Filter berdasarkan kategori jika ada
         if ($request->filled('category') && $request->category !== 'all') {
@@ -68,7 +72,7 @@ class GalleryController extends Controller
         
         $photos = $query->orderBy('created_at', 'desc')->get();
         
-        // Get user IP for checking if they liked photos
+        // Get user IP for checking if they liked photos (for guests)
         $userIp = $request->ip();
         
         // Get all available categories
@@ -110,6 +114,12 @@ class GalleryController extends Controller
 
     public function downloadPhoto($id)
     {
+        // Check if user is logged in
+        if (!auth()->check()) {
+            return redirect()->route('user.login')
+                ->with('error', 'Anda harus login terlebih dahulu untuk mengunduh foto.');
+        }
+        
         $photo = Photo::findOrFail($id);
         
         // Get the file path from URL

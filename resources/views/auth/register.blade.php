@@ -123,6 +123,7 @@
         .password-strength {
             margin-top: 8px;
             font-size: 0.8rem;
+            color: white;
         }
 
         .strength-bar {

@@ -50,6 +50,22 @@ class Photo extends Model
     }
 
     /**
+     * Check if the photo is liked by the authenticated user
+     */
+    public function isLikedByUser($userId = null)
+    {
+        if (!$userId) {
+            $userId = auth()->id();
+        }
+        
+        if (!$userId) {
+            return false;
+        }
+        
+        return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    /**
      * Get the photo URL
      */
     public function getPhotoUrlAttribute()

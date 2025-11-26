@@ -151,18 +151,19 @@
         }
 
         .search-container {
-            margin-bottom: 24px;
+            margin-bottom: 0;
         }
 
         .search-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
 
         .search-input-group {
             display: flex;
             gap: 12px;
+            align-items: center;
         }
 
         .search-input {
@@ -207,7 +208,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 14px 24px;
+            padding: 14px 28px;
             border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -216,8 +217,10 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-size: 15px;
+            min-width: 100px;
         }
 
         .search-btn:hover {
@@ -234,26 +237,34 @@
         }
 
         .category-filter {
-            padding: 10px 16px;
-            border: 1px solid var(--secondary-300);
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
             background: white !important;
             color: #1e293b !important;
-            transition: all 0.2s ease;
-            min-width: 200px;
+            transition: all 0.3s ease;
+            min-width: 220px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 12px;
+            padding-right: 40px;
         }
 
         .category-filter option {
             background: white !important;
             color: #1e293b !important;
+            padding: 12px;
         }
 
         .category-filter:focus {
             outline: none;
             border-color: #10b981;
             background: white !important;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
         }
 
         .filter-btn {
@@ -268,8 +279,10 @@
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-size: 15px;
+            white-space: nowrap;
         }
 
         .filter-btn:hover {
@@ -1138,8 +1151,16 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
+            .search-filter-section {
+                padding: 24px;
+            }
+            
             .search-input-group {
                 flex-direction: column;
+            }
+            
+            .search-btn {
+                width: 100%;
             }
             
             .filter-group {
@@ -1149,6 +1170,12 @@
             
             .category-filter {
                 min-width: auto;
+                width: 100%;
+            }
+            
+            .filter-btn,
+            .clear-btn {
+                width: 100%;
             }
         }
 
@@ -1305,19 +1332,15 @@
 
         <div class="stats-overview">
             <div class="stat-card">
-                <div class="stat-number">{{ $photos->count() }}</div>
+                <div class="stat-number">{{ $totalPhotos ?? $photos->total() }}</div>
                 <div class="stat-label">Total Foto</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ $photos->groupBy('category')->count() }}</div>
-                <div class="stat-label">Kategori Aktif</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ $photos->groupBy('uploaded_by')->count() }}</div>
+                <div class="stat-number">{{ $activeAdmins ?? $photos->groupBy('uploaded_by')->count() }}</div>
                 <div class="stat-label">Admin Aktif</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ $photos->where('created_at', '>=', now()->subDays(7))->count() }}</div>
+                <div class="stat-number">{{ $photosThisWeek ?? $photos->where('created_at', '>=', now()->subDays(7))->count() }}</div>
                 <div class="stat-label">Foto Minggu Ini</div>
             </div>
         </div>
@@ -1330,11 +1353,11 @@
                             <input type="text" 
                                    name="search" 
                                    value="{{ request('search') }}" 
-                                   placeholder="Cari foto berdasarkan judul atau deskripsi..."
+                                   placeholder="Cari foto berdasarkan judul atau deskripsi"
                                    class="search-input">
                         </div>
                         <button type="submit" class="search-btn">
-                            Cari
+                            <i class="fas fa-search"></i> Cari
                         </button>
                     </div>
                     
@@ -1343,20 +1366,20 @@
                             <option value="all" {{ request('category') == 'all' || !request('category') ? 'selected' : '' }}>
                                 Semua Kategori
                             </option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>
-                                    {{ \App\Helpers\CategoryHelper::getCategoryName($category) }}
+                            @foreach($categories as $key => $name)
+                                <option value="{{ $key }}" {{ request('category') == $key ? 'selected' : '' }}>
+                                    {{ $name }}
                                 </option>
                             @endforeach
                         </select>
                         
                         <button type="submit" class="filter-btn">
-                            Filter
+                            <i class="fas fa-filter"></i> Filter
                         </button>
                         
                         @if(request('search') || (request('category') && request('category') !== 'all'))
                             <a href="{{ route('admin.photos.index') }}" class="clear-btn">
-                                Hapus Filter
+                                <i class="fas fa-times"></i> Hapus Filter
                             </a>
                         @endif
                     </div>

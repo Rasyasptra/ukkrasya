@@ -12,6 +12,14 @@ class CommentController extends Controller
 {
     public function store(Request $request, $photoId)
     {
+        // Check if user is logged in
+        if (!auth()->check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login terlebih dahulu untuk mengomentari foto. Silakan login atau daftar untuk melanjutkan.'
+            ], 401);
+        }
+        
         $userId = auth()->id();
         
         // Validation rules differ for logged-in users vs guests
