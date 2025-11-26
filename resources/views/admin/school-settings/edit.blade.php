@@ -131,24 +131,30 @@
         </div>
 
         <div class="form-group">
-            <label for="logo">Logo Sekolah</label>
-            <div style="margin-bottom: 16px;">
-                @if($settings->logo_path)
-                    <div style="margin-bottom: 12px;">
-                        <p style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Logo Saat Ini:</p>
-                        <img src="{{ asset($settings->logo_path) }}" 
-                             alt="Logo Sekolah" 
-                             style="max-width: 200px; max-height: 100px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; background: white;"
-                             onerror="this.style.display='none';">
+            <label for="logoInput">Logo Sekolah</label>
+            <div class="logo-preview-wrapper">
+                <p style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Pratinjau Logo:</p>
+                <div class="logo-preview-box">
+                    <img src="{{ asset($settings->logo_path ?? 'logo.png') }}" 
+                         alt="Pratinjau Logo Sekolah" 
+                         id="logoPreviewImage"
+                         onerror="this.src='{{ asset('images/no-image.png') }}';">
+                </div>
+            </div>
+
+            <div class="drop-zone" id="logoDropZone">
+                <input type="file" 
+                       id="logoInput" 
+                       name="logo" 
+                       accept="image/*"
+                       hidden>
+                <div class="drop-zone-content">
+                    <div class="drop-zone-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
                     </div>
-                @endif
-                <div class="input-wrapper">
-                    <i class="fas fa-image input-icon"></i>
-                    <input type="file" 
-                           id="logo" 
-                           name="logo" 
-                           accept="image/*"
-                           class="form-control">
+                    <p class="drop-zone-title">Seret & lepaskan logo di sini</p>
+                    <p class="drop-zone-hint">atau klik untuk memilih file</p>
+                    <p class="file-name" id="logoFileName">Belum ada file dipilih</p>
                 </div>
             </div>
             <small class="form-text">Format: JPG, PNG, GIF, SVG. Maksimal 2MB. Kosongkan jika tidak ingin mengubah logo.</small>
@@ -257,6 +263,68 @@
         margin-top: 6px;
     }
 
+    .logo-preview-wrapper {
+        margin-bottom: 16px;
+    }
+
+    .logo-preview-box {
+        width: 200px;
+        height: 100px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+    }
+
+    .logo-preview-box img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .drop-zone {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .drop-zone--over {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .drop-zone-icon {
+        font-size: 32px;
+        color: #3b82f6;
+        margin-bottom: 12px;
+    }
+
+    .drop-zone-title {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 4px;
+    }
+
+    .drop-zone-hint {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .file-name {
+        font-size: 0.9rem;
+        color: #475569;
+        font-style: italic;
+    }
+
     .form-actions {
         display: flex;
         gap: 12px;
@@ -325,5 +393,62 @@
         padding-left: 20px;
     }
 </style>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dropZone = document.getElementById('logoDropZone');
+    const fileInput = document.getElementById('logoInput');
+    const fileNameText = document.getElementById('logoFileName');
+    const previewImage = document.getElementById('logoPreviewImage');
+
+    if (!dropZone || !fileInput) {
+        return;
+    }
+
+    const updatePreview = (file) => {
+        if (!file) return;
+        fileNameText.textContent = file.name;
+
+        if (previewImage) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                previewImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files && fileInput.files[0]) {
+            updatePreview(fileInput.files[0]);
+        }
+    });
+
+    dropZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropZone.classList.add('drop-zone--over');
+    });
+
+    ['dragleave', 'dragend'].forEach(evt => {
+        dropZone.addEventListener(evt, () => dropZone.classList.remove('drop-zone--over'));
+    });
+
+    dropZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropZone.classList.remove('drop-zone--over');
+
+        if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+            const file = event.dataTransfer.files[0];
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            updatePreview(file);
+        }
+    });
+});
+</script>
+@endpush
 @endsection
 
